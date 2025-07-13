@@ -5,6 +5,7 @@ build({
     './src/functions/signup.ts',
     './src/functions/preSignUpTrigger.ts',
     './src/functions/login.ts',
+    './src/functions/refresh.ts',
     // add more as needed
   ],
   entryNames: '[name]/index',
