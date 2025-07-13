@@ -1,10 +1,6 @@
 import { StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import {
-  Deployment,
-  LambdaIntegration,
-  RestApi,
-} from 'aws-cdk-lib/aws-apigateway';
+import { Deployment, RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { AuthApiStack } from '../stacks/auth-api-stack';
 import { Stage } from 'aws-cdk-lib/aws-apigateway';
 import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
