@@ -1,19 +1,17 @@
 import { StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import {
-  Deployment,
-  LambdaIntegration,
-  RestApi,
-} from 'aws-cdk-lib/aws-apigateway';
+import { Deployment, RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { AuthApiStack } from '../stacks/auth-api-stack';
 import { Stage } from 'aws-cdk-lib/aws-apigateway';
+import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
 
 interface ApiGatewayConstructProps extends StackProps {
-  signupIntegration: LambdaIntegration;
+  cognitoUserPool: UserPool;
+  cognitoUserPoolClient: UserPoolClient;
   stage: string;
 }
 
-export class ApiGateway extends Construct {
+export class Api extends Construct {
   public api: RestApi;
 
   constructor(scope: Construct, id: string, props: ApiGatewayConstructProps) {
@@ -32,7 +30,8 @@ export class ApiGateway extends Construct {
   private createNestedStacks(props: ApiGatewayConstructProps): void {
     const authApiStack = new AuthApiStack(this, 'AuthApiStack', {
       api: this.api,
-      signupIntegration: props.signupIntegration,
+      cognitoUserPool: props.cognitoUserPool,
+      cognitoUserPoolClient: props.cognitoUserPoolClient,
     });
 
     const deployment = new Deployment(
