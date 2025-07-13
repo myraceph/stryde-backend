@@ -15,8 +15,10 @@ interface AuthApiStackProps extends NestedStackProps {
 export class AuthApiStack extends NestedStack {
   private signupFunction: Function;
   private loginFunction: Function;
+  private refreshFunction: Function;
   private signUpIntegration: LambdaIntegration;
   private loginIntegration: LambdaIntegration;
+  private refreshIntegration: LambdaIntegration;
 
   constructor(scope: Construct, id: string, props: AuthApiStackProps) {
     super(scope, id);
@@ -30,20 +32,18 @@ export class AuthApiStack extends NestedStack {
   private createLambdaFunctions(props: AuthApiStackProps) {
     this.signupFunction = this.createLambdaFunction('signup');
     this.signupFunction.addEnvironment(
-      'COGNITO_USER_POOL_ID',
-      props.cognitoUserPool.userPoolId
-    );
-    this.signupFunction.addEnvironment(
       'COGNITO_USER_POOL_CLIENT_ID',
       props.cognitoUserPoolClient.userPoolClientId
     );
 
     this.loginFunction = this.createLambdaFunction('login');
     this.loginFunction.addEnvironment(
-      'COGNITO_USER_POOL_ID',
-      props.cognitoUserPool.userPoolId
+      'COGNITO_USER_POOL_CLIENT_ID',
+      props.cognitoUserPoolClient.userPoolClientId
     );
-    this.loginFunction.addEnvironment(
+
+    this.refreshFunction = this.createLambdaFunction('refresh');
+    this.refreshFunction.addEnvironment(
       'COGNITO_USER_POOL_CLIENT_ID',
       props.cognitoUserPoolClient.userPoolClientId
     );
@@ -52,6 +52,7 @@ export class AuthApiStack extends NestedStack {
   private createLambdaIntegrations() {
     this.signUpIntegration = new LambdaIntegration(this.signupFunction);
     this.loginIntegration = new LambdaIntegration(this.loginFunction);
+    this.refreshIntegration = new LambdaIntegration(this.refreshFunction);
   }
 
   private assignPermissions(props: AuthApiStackProps) {
@@ -70,6 +71,25 @@ export class AuthApiStack extends NestedStack {
         resources: [props.cognitoUserPool.userPoolArn],
       })
     );
+
+    this.refreshFunction.addToRolePolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ['cognito-idp:GetTokensFromRefreshToken'],
+        resources: [props.cognitoUserPool.userPoolArn],
+      })
+    );
+  }
+
+  private createResources(props: AuthApiStackProps): void {
+    const signupResource = props.api.root.addResource('signup');
+    signupResource.addMethod('POST', this.signUpIntegration);
+
+    const loginResource = props.api.root.addResource('login');
+    loginResource.addMethod('POST', this.loginIntegration);
+
+    const refreshResource = props.api.root.addResource('refresh');
+    refreshResource.addMethod('POST', this.refreshIntegration);
   }
 
   private createLambdaFunction(id: string) {
@@ -80,13 +100,5 @@ export class AuthApiStack extends NestedStack {
         path.resolve(__dirname, '../../../lambdas/dist', id)
       ),
     });
-  }
-
-  private createResources(props: AuthApiStackProps): void {
-    const signupResource = props.api.root.addResource('signup');
-    signupResource.addMethod('POST', this.signUpIntegration);
-
-    const loginResource = props.api.root.addResource('login');
-    loginResource.addMethod('POST', this.loginIntegration);
   }
 }
