@@ -44,6 +44,12 @@ export class StatefulStack extends Stack {
     });
 
     table.addGlobalSecondaryIndex({
+      indexName: 'GSI2',
+      partitionKey: { name: 'GSI2PK', type: AttributeType.STRING },
+      sortKey: { name: 'GSI2SK', type: AttributeType.STRING },
+    });
+
+    table.addGlobalSecondaryIndex({
       indexName: 'GSI5',
       partitionKey: { name: 'GSI5PK', type: AttributeType.STRING },
       sortKey: { name: 'GSI5SK', type: AttributeType.STRING },
