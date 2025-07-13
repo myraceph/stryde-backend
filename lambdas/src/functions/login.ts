@@ -1,7 +1,7 @@
 import { APIGatewayProxyEventV2 } from 'aws-lambda';
 import {
   CognitoIdentityProviderClient,
-  SignUpCommand,
+  InitiateAuthCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
 
 const cognitoClient = new CognitoIdentityProviderClient({
@@ -12,49 +12,44 @@ exports.handler = async (event: APIGatewayProxyEventV2) => {
   try {
     console.log('event', event);
 
-    const { email, password, firstName, lastName, role } = JSON.parse(
-      event.body ?? '{}'
-    );
+    const { email, password } = JSON.parse(event.body ?? '{}');
 
-    if (!email || !password || !firstName || !lastName || !role) {
+    if (!email || !password) {
       return {
         statusCode: 400,
         body: JSON.stringify({ message: 'Missing required fields' }),
       };
     }
 
-    const command = new SignUpCommand({
+    const command = new InitiateAuthCommand({
       ClientId: process.env.COGNITO_USER_POOL_CLIENT_ID,
-      Username: email,
-      Password: password,
-      UserAttributes: [
-        {
-          Name: 'email',
-          Value: email,
-        },
-        {
-          Name: 'custom:firstName',
-          Value: firstName,
-        },
-        {
-          Name: 'custom:lastName',
-          Value: lastName,
-        },
-        {
-          Name: 'custom:role',
-          Value: role,
-        },
-      ],
+      AuthFlow: 'USER_PASSWORD_AUTH',
+      AuthParameters: {
+        USERNAME: email,
+        PASSWORD: password,
+      },
     });
 
     const response = await cognitoClient.send(command);
 
-    console.log('response', response);
+    const authenticationResult = response.AuthenticationResult;
+    const accessToken = authenticationResult
+      ? authenticationResult.AccessToken
+      : '';
+    const refreshToken = authenticationResult
+      ? authenticationResult.RefreshToken
+      : '';
+    const idToken = authenticationResult ? authenticationResult.IdToken : '';
 
     return {
       statusCode: 200,
       body: JSON.stringify({
-        message: 'User signed up successfully',
+        message: 'User logged in successfully',
+        data: {
+          accessToken,
+          refreshToken,
+          idToken,
+        },
       }),
     };
   } catch (error) {
