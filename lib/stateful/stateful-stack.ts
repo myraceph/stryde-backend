@@ -9,7 +9,7 @@ import {
 } from 'aws-cdk-lib/aws-cognito';
 import { Code, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Function } from 'aws-cdk-lib/aws-lambda';
-import path = require('path');
+import * as path from 'path';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 
 interface StatefulStackProps extends StackProps {
@@ -32,7 +32,6 @@ export class StatefulStack extends Stack {
 
   private createDataTable(): Table {
     const table = new Table(this, 'DataTable', {
-      tableName: 'DataTable',
       partitionKey: { name: 'PK', type: AttributeType.STRING },
       sortKey: { name: 'SK', type: AttributeType.STRING },
       billingMode: BillingMode.PAY_PER_REQUEST,

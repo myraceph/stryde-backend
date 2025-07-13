@@ -2,24 +2,36 @@
 import * as cdk from 'aws-cdk-lib';
 import { StatefulStack } from '../lib/stateful/stateful-stack';
 import { StatelessStack } from '../lib/stateless/stateless-stack';
+import devConfig from '../config/dev';
+import remocalConfig from '../config/remocal';
+import 'dotenv/config';
 
 const app = new cdk.App();
 
+// Local stacks
+const localStatefulStack = new StatefulStack(
+  app,
+  `${process.env.STAGE}StatefulStack`,
+  {
+    ...remocalConfig.Stateful,
+  }
+);
+
+new StatelessStack(app, `${process.env.STAGE}StatelessStack`, {
+  ...remocalConfig.Stateless,
+  dataTable: localStatefulStack.dataTable,
+  cognitoUserPool: localStatefulStack.strydeUserPool,
+  cognitoUserPoolClient: localStatefulStack.strydeUserPoolClient,
+});
+
+// Dev stacks
 const devStatefulStack = new StatefulStack(app, 'DevStatefulStack', {
-  env: {
-    account: '442867850698',
-    region: 'ap-southeast-1',
-  },
-  stage: 'dev',
+  ...devConfig.Stateful,
 });
 
 new StatelessStack(app, 'DevStatelessStack', {
-  env: {
-    account: '442867850698',
-    region: 'ap-southeast-1',
-  },
+  ...devConfig.Stateless,
   dataTable: devStatefulStack.dataTable,
   cognitoUserPool: devStatefulStack.strydeUserPool,
   cognitoUserPoolClient: devStatefulStack.strydeUserPoolClient,
-  stage: 'dev',
 });
