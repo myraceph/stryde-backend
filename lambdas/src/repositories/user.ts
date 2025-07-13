@@ -1,5 +1,5 @@
 import { UserEntity } from '../entities/user';
-import { EntityRepository } from 'dynamodb-toolbox';
+import { EntityRepository, ValidItem } from 'dynamodb-toolbox';
 
 export interface CreateUserInput {
   id: string;
@@ -78,6 +78,7 @@ export class UserRepository {
    * Get a user by email
    */
   async getUserByEmail(email: string): Promise<User | null> {
+    console.log(email);
     return null;
   }
 
@@ -86,11 +87,11 @@ export class UserRepository {
    */
   async updateUser(id: string, input: UpdateUserInput): Promise<User | null> {
     try {
-      const updateData: any = {
+      const updateData = {
         PK: `USER#${id}`,
         SK: `PROFILE`,
         updatedAt: new Date().toISOString(),
-      };
+      } as ValidItem<typeof UserEntity>;
 
       // Only include fields that are being updated
       if (input.email !== undefined) updateData.email = input.email;
@@ -128,8 +129,8 @@ export class UserRepository {
    */
   async listUsers(
     limit = 50,
-    startKey?: any
-  ): Promise<{ users: User[]; lastEvaluatedKey?: Record<string, any> }> {
+    startKey?: string
+  ): Promise<{ users: User[]; lastEvaluatedKey?: Record<string, string> }> {
     try {
       const result = await userRepository.query(
         {
@@ -160,8 +161,8 @@ export class UserRepository {
   async listUsersByRole(
     role: 'runner' | 'organizer',
     limit = 50,
-    startKey?: any
-  ): Promise<{ users: User[]; lastEvaluatedKey?: Record<string, any> }> {
+    startKey?: string
+  ): Promise<{ users: User[]; lastEvaluatedKey?: Record<string, string> }> {
     try {
       const result = await userRepository.query(
         {

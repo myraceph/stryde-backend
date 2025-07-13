@@ -9,7 +9,7 @@ import {
 } from 'aws-cdk-lib/aws-cognito';
 import { Code, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Function } from 'aws-cdk-lib/aws-lambda';
-import path = require('path');
+import * as path from 'path';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 
 interface StatefulStackProps extends StackProps {
@@ -24,13 +24,13 @@ export class StatefulStack extends Stack {
   constructor(scope: Construct, id: string, props: StatefulStackProps) {
     super(scope, id, props);
 
-    this.dataTable = this.createDataTable(props);
+    this.dataTable = this.createDataTable();
     this.strydeUserPool = this.createCognitoUserPool();
     this.strydeUserPoolClient = this.createCognitoUserPoolClient();
     this.createLambdaTriggers();
   }
 
-  private createDataTable(props: StatefulStackProps): Table {
+  private createDataTable(): Table {
     const table = new Table(this, 'DataTable', {
       partitionKey: { name: 'PK', type: AttributeType.STRING },
       sortKey: { name: 'SK', type: AttributeType.STRING },
