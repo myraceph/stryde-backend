@@ -4,6 +4,18 @@ import { defineConfig } from 'eslint/config';
 import unusedImports from 'eslint-plugin-unused-imports';
 
 export default defineConfig([
+  {
+    ignores: [
+      'node_modules/**',
+      'dist/**',
+      'build/**',
+      'coverage/**',
+      '*.min.js',
+      '*.bundle.js',
+      'cdk.out/**',
+      'lambdas/dist/**',
+    ],
+  },
   { files: ['**/*.js'], languageOptions: { sourceType: 'script' } },
   {
     files: ['**/*.{js,mjs,cjs,ts,mts,cts}'],
