@@ -13,7 +13,7 @@ exports.handler = async (event: PreSignUpTriggerEvent) => {
   await userRepository.createUser({
     id: uuidv4(),
     role: event.request.userAttributes['custom:role'] as 'runner' | 'organizer',
-    email: event.request.userAttributes['custom:email'],
+    email: event.request.userAttributes.email,
     firstName: event.request.userAttributes['custom:firstName'],
     lastName: event.request.userAttributes['custom:lastName'],
   });

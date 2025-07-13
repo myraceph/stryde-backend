@@ -4,6 +4,7 @@ build({
   entryPoints: [
     './src/functions/signup.ts',
     './src/functions/preSignUpTrigger.ts',
+    './src/functions/login.ts',
     // add more as needed
   ],
   entryNames: '[name]/index',
