@@ -70,6 +70,76 @@ The application follows a **serverless architecture** with the following compone
    npm run esbuild -w lambdas
    ```
 
+## 🧪 Remocal Testing (Individual Developer Environments)
+
+### What is Remocal Testing?
+
+Remocal testing allows each developer to deploy their own isolated environment in AWS for testing and development. Since we use serverless architecture, there are **no cost implications** when resources are not in use - you only pay for actual usage.
+
+### Setting Up Your Remocal Environment
+
+1. **Set your developer stage**
+
+   Create a `.env` file in the root of the project with the following content:
+
+   ```bash
+   STAGE=yourname
+   ```
+
+2. **Build Lambda functions**
+
+   ```bash
+   npm run esbuild -w lambdas
+   ```
+
+3. **Deploy your environment**
+
+   ```bash
+   # Deploy both stateful and stateless stacks
+   npx cdk deploy "<STAGE>StatefulStack" "<STAGE>StatelessStack"
+   ```
+
+4. **Get your environment details**
+
+   ```bash
+   # View stack outputs
+   npx cdk list
+
+   # Get specific stack outputs
+   npx cdk list --outputs
+   ```
+
+### Remocal Environment Management
+
+#### Deploying Changes
+
+```bash
+# Build and deploy changes
+npm run esbuild -w lambdas
+npx cdk deploy "<STAGE>StatefulStack" "<STAGE>StatelessStack"
+```
+
+#### Checking Differences
+
+```bash
+# See what will change before deploying
+npx cdk diff "<STAGE>StatefulStack" "<STAGE>StatelessStack"
+```
+
+#### Destroying Your Environment
+
+```bash
+# Clean up your environment when done
+npx cdk destroy "<STAGE>StatefulStack" "<STAGE>StatelessStack"
+```
+
+### Best Practices
+
+1. **Use descriptive stage names**: `Iggy`, `John`
+2. **Destroy environments regularly**: Clean up when not actively developing
+3. **Monitor usage**: Check AWS billing dashboard occasionally
+4. **Share configurations**: Document any custom configurations with the team
+
 ### Development
 
 #### Available Scripts
@@ -122,6 +192,9 @@ npx cdk destroy
 backend/
 ├── bin/                    # CDK app entry point
 │   └── index.ts           # Main CDK application
+├── config/                 # Environment configurations
+│   ├── dev.ts             # Development environment
+│   └── remocal.ts         # Remocal testing environment
 ├── lib/                    # CDK infrastructure code
 │   ├── backend-stack.ts   # Legacy stack (unused)
 │   ├── stateful/          # Stateful resources
@@ -259,14 +332,30 @@ npm run test
 
 ## 🚀 Deployment
 
-### Development Deployment
+### Remocal Development Deployment
+
+For individual developer environments:
+
+```bash
+# Set your developer stage in .env
+
+# Build Lambda functions
+npm run esbuild -w lambdas
+
+# Deploy your isolated environment
+npx cdk deploy "<STAGE>StatefulStack" "<STAGE>StatelessStack"
+```
+
+### Shared Development Deployment
+
+For the shared development environment:
 
 ```bash
 # Build Lambda functions
 npm run esbuild -w lambdas
 
-# Deploy to AWS
-npx cdk deploy
+# Deploy to shared dev environment
+npx cdk deploy DevStatefulStack DevStatelessStack
 ```
 
 ### Production Deployment
@@ -274,6 +363,22 @@ npx cdk deploy
 1. Update the stage parameter in `bin/index.ts`
 2. Configure AWS credentials
 3. Run deployment commands
+
+### Environment-Specific Commands
+
+```bash
+# Deploy only stateful resources (DynamoDB, Cognito)
+npx cdk deploy "*StatefulStack"
+
+# Deploy only stateless resources (Lambda, API Gateway)
+npx cdk deploy "*StatelessStack"
+
+# Deploy specific stacks by name
+npx cdk deploy JohnStatefulStack JohnStatelessStack
+
+# View all available stacks
+npx cdk list
+```
 
 ## 🔒 Security
 
