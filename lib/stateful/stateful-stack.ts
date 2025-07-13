@@ -24,15 +24,14 @@ export class StatefulStack extends Stack {
   constructor(scope: Construct, id: string, props: StatefulStackProps) {
     super(scope, id, props);
 
-    this.dataTable = this.createDataTable();
+    this.dataTable = this.createDataTable(props);
     this.strydeUserPool = this.createCognitoUserPool();
     this.strydeUserPoolClient = this.createCognitoUserPoolClient();
     this.createLambdaTriggers();
   }
 
-  private createDataTable(): Table {
+  private createDataTable(props: StatefulStackProps): Table {
     const table = new Table(this, 'DataTable', {
-      tableName: 'DataTable',
       partitionKey: { name: 'PK', type: AttributeType.STRING },
       sortKey: { name: 'SK', type: AttributeType.STRING },
       billingMode: BillingMode.PAY_PER_REQUEST,
