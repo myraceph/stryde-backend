@@ -1,4 +1,4 @@
-import { FunrunEntity, toResponseDto } from '../entities/funrun';
+import { FunrunEntity } from '../entities/funrun';
 import { EntityRepository, ValidItem } from 'dynamodb-toolbox';
 
 export interface CreateFunrunInput {
